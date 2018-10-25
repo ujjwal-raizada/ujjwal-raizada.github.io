@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['implelimination',['ImplElimination',['../classProofLine.html#ae7abe4f5ba681e3e2453710a0d09b07d',1,'ProofLine']]]
+  ['implelimination',['implElimination',['../classProofLine.html#ae5ea0ef5e9c41064af3d8578af1f8da0',1,'ProofLine']]]
 ];

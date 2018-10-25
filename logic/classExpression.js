@@ -1,10 +1,8 @@
 var classExpression =
 [
     [ "createParseTree", "classExpression.html#a3817b91bd11af1d38674a51c1c057cd2", null ],
-    [ "getter", "classExpression.html#a966431e475bfa482c1af54b66066f1a2", null ],
     [ "inOrder", "classExpression.html#a9323f3705afb5744bf03acc697a2821c", null ],
     [ "newNode", "classExpression.html#af7a3eb9bb5e2255c4a94b94c208e18a3", null ],
-    [ "postFix", "classExpression.html#a74bc172507d113a7a7fb4c8219be1559", null ],
     [ "postFix", "classExpression.html#a74bc172507d113a7a7fb4c8219be1559", null ],
     [ "printInOrder", "classExpression.html#a882ce32ef75bcd7840bc1439be89726d", null ],
     [ "setInfix", "classExpression.html#a24e7a26a19f7caca2f6ededc601c0137", null ],

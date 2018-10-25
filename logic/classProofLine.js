@@ -1,12 +1,13 @@
 var classProofLine =
 [
     [ "ProofLine", "classProofLine.html#aed683fe67d959f3b95f8975e80b23d66", null ],
-    [ "AndElimination1", "classProofLine.html#a000cc2c7aa841d980cf22c4580254909", null ],
-    [ "AndElimination2", "classProofLine.html#accd23a8f3bad6b58a2243feeab093189", null ],
-    [ "ImplElimination", "classProofLine.html#ae7abe4f5ba681e3e2453710a0d09b07d", null ],
+    [ "andElimination1", "classProofLine.html#a43b9c81f4f9be5f00343f5145110e075", null ],
+    [ "andElimination2", "classProofLine.html#a0bda4d97d283bf87f0c97415ede20e37", null ],
+    [ "andIntro", "classProofLine.html#ac6f66fe3b8cc3d99b120c6cfc74f34b4", null ],
+    [ "implElimination", "classProofLine.html#ae5ea0ef5e9c41064af3d8578af1f8da0", null ],
     [ "MT", "classProofLine.html#abbc92e738aea8f3aa60a2b252ebfb9c6", null ],
-    [ "OrIntro1", "classProofLine.html#a1453da3386be1303bc6f1c31eaee733f", null ],
-    [ "OrIntro2", "classProofLine.html#a10b47d0c24417389a5e7152469357ef4", null ],
+    [ "orIntro1", "classProofLine.html#aec5ed54b54b88fb6e1a28dc81e95c670", null ],
+    [ "orIntro2", "classProofLine.html#af445475b7ba7083bc67b3066dbfefc95", null ],
     [ "printProofLine", "classProofLine.html#a3513b1868553c12d6f543d2ac52128d0", null ],
     [ "splitProofLine", "classProofLine.html#a0852f21558cab79bdcaec616afdb02c0", null ],
     [ "verify", "classProofLine.html#a6f98427e3d814f8d122e729a427afeee", null ],

@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.13"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Logic in Computer Science: Assignment 2: README</title>
+<title>Logic in Computer Science: Assignment 2: Tests performed on First Question</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -61,7 +61,7 @@ $(function() {
   </div>
 </div>
 <script type="text/javascript">
-$(document).ready(function(){initNavTree('index.html','');});
+$(document).ready(function(){initNavTree('md_Question_1_testcases_for_Question_1.html','');});
 </script>
 <div id="doc-content">
 <!-- window showing the filter options -->
@@ -80,49 +80,18 @@ $(document).ready(function(){initNavTree('index.html','');});
 
 <div class="header">
   <div class="headertitle">
-<div class="title">README </div>  </div>
+<div class="title">Tests performed on First Question </div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p>Following project contains code for Assignment 2 of Logic in CS. <br />
-Contains two directory, each for two parts of the assignment.</p>
-<h1>Team:</h1>
-<ol type="1">
-<li><a href="http://github.com/ujjwalrox">Ujjwal Raizada</a> (2017A7PS1398H)</li>
-<li><a href="http://github.com/sat13mani">Satyam Mani</a> (2017A7PS0277H)</li>
-</ol>
-<h1>Testing of time and memory:</h1>
-<ol type="1">
-<li><a class="el" href="md_Question_1_testcases_for_Question_1.html">Question 1 Link</a></li>
-<li><a class="el" href="md_Question_2_testcases_for_Question_2.html">Question 2 Link</a></li>
-</ol>
-<h1>Naming Convention:</h1>
-<ol type="1">
-<li>Class names are in <code>PascalCase</code>.</li>
-<li>Methods names are in <code>camelCase</code>.</li>
-<li>Variable names are in <code>snake_case</code>.</li>
-<li>Capital words for <code>CONSTANTS</code>.</li>
-</ol>
-<h1>Setup:</h1>
-<p><b>For Part 1</b></p>
-<ol type="1">
-<li>Compiling: Run in terminal<br />
- <div class="fragment"><div class="line">$ cd Question_1</div><div class="line">$ g++ ExpMain.cpp -o ExpMain.out</div></div><!-- fragment --></li>
-<li>running the code: <div class="fragment"><div class="line">$ ./ExpMain.out</div></div><!-- fragment --></li>
-</ol>
-<p><br />
-<br />
-<b>For Part 2</b></p>
-<ol type="1">
-<li>Compiling: Run in terminal<br />
- <div class="fragment"><div class="line">$ cd Question_2</div><div class="line">$ g++ ProofMain.cpp -o ProofMain.out</div></div><!-- fragment --></li>
-<li>running the code: <div class="fragment"><div class="line">$ ./ProofMain.out</div></div><!-- fragment --></li>
-</ol>
-<h1>Other files:</h1>
-<ol type="1">
-<li><b>.gitignore: </b> Used to ignore build files or private files from git history and uploading to git platform. (eg. Github)</li>
-</ol>
-<p><br />
- Thank you. </p>
+<div class="textblock"><p>Calculated memory usage from: <a href="https://ide.geeksforgeeks.org/">IDE GeeksForGeeks</a></p>
+<h3>Input 1: ((a^b)^(~(c&gt;(p^(c&gt;(b^c))))))</h3>
+<div class="fragment"><div class="line">Input infix expression: ((a^b)^(~(c&gt;(p^(c&gt;(b^c))))))</div><div class="line">Postfix is :ab^cpcbc^&gt;^&gt;~^</div><div class="line">Infix expression from parse tree: ((a^b)^(~(c&gt;(p^(c&gt;(b^c))))))</div><div class="line">Given Formula is Well Formed</div><div class="line"></div><div class="line"></div><div class="line">time used by main 82 microsec</div><div class="line">time used by postfix 46 microsec</div><div class="line">time used by inorder 8 microsec</div></div><!-- fragment --><p>Memory: 3.3494418893433 MB</p>
+<p>### Input 2: (aVb) </p><div class="fragment"><div class="line">Input infix expression: Postfix is :abV</div><div class="line">Infix expression from parse tree: (aVb)</div><div class="line">Given Formula is Well Formed</div><div class="line"></div><div class="line"></div><div class="line">time used by main 23 microsec</div><div class="line">time used by postfix 11 microsec</div><div class="line">time used by inorder 2 microsec</div><div class="line">time used by verifyWellFormed 0 microsec</div></div><!-- fragment --><p>Memory: 3.3533518893433 MB</p>
+<p>### Input 3: ((a^b)^c) </p><div class="fragment"><div class="line">Input infix expression: Postfix is :ab^c^</div><div class="line">Infix expression from parse tree: ((a^b)^c)</div><div class="line">Given Formula is Well Formed</div><div class="line"></div><div class="line"></div><div class="line">time used by main 25 microsec</div><div class="line">time used by postfix 12 microsec</div><div class="line">time used by inorder 2 microsec</div><div class="line">time used by verifyWellFormed 0 microsec</div></div><!-- fragment --><p>Memory: 3.123458893433 MB</p>
+<h3>Input 4: (a^(~b))</h3>
+<div class="fragment"><div class="line">Input infix expression: Postfix is :ab~^</div><div class="line">Infix expression from parse tree: (a^(~b))</div><div class="line">Given Formula is Well Formed</div><div class="line"></div><div class="line"></div><div class="line">time used by main 24 microsec</div><div class="line">time used by postfix 11 microsec</div><div class="line">time used by inorder 2 microsec</div><div class="line">time used by verifyWellFormed 0 microsec</div></div><!-- fragment --><p> Memory(MB) : 3.3181918893433</p>
+<h3>Input 5: (~(~a))</h3>
+<div class="fragment"><div class="line">Input infix expression: Postfix is :a~~</div><div class="line">Infix expression from parse tree: (~(~a))</div><div class="line">Given Formula is Well Formed</div><div class="line"></div><div class="line"></div><div class="line">time used by main 25 microsec</div><div class="line">time used by postfix 12 microsec</div><div class="line">time used by inorder 2 microsec</div><div class="line">time used by verifyWellFormed 1 microsec</div></div><!-- fragment --><p>Memory(MB) : 3.4236618893433 </p>
 </div></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

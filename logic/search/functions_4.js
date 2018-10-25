@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['orintro1',['OrIntro1',['../classProofLine.html#a1453da3386be1303bc6f1c31eaee733f',1,'ProofLine']]],
-  ['orintro2',['OrIntro2',['../classProofLine.html#a10b47d0c24417389a5e7152469357ef4',1,'ProofLine']]]
+  ['orintro1',['orIntro1',['../classProofLine.html#aec5ed54b54b88fb6e1a28dc81e95c670',1,'ProofLine']]],
+  ['orintro2',['orIntro2',['../classProofLine.html#af445475b7ba7083bc67b3066dbfefc95',1,'ProofLine']]]
 ];
