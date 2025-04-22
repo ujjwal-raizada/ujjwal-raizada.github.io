@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MacroMaster Lite (Indian Food & Veg Filter)</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍎</text></svg>">
+
+    <style>
+        /* General body styling */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+            color: #343a40;
+        }
+
+        /* Header styling */
+        header { text-align: center; margin-bottom: 2rem; color: #005f73; }
+        h1 { margin: 0; font-size: 2rem; }
+        h2 { color: #0a9396; margin-top: 0; margin-bottom: 1em; border-bottom: 2px solid #e9ecef; padding-bottom: 0.5em; }
+
+        /* Layout */
+        .container { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; max-width: 1200px; margin: 0 auto; }
+        .card { background-color: #ffffff; border-radius: 8px; padding: 20px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05); border: 1px solid #dee2e6; display: flex; flex-direction: column; }
+
+        /* Search & Filter Area */
+        .food-controls {
+            display: flex;
+            flex-wrap: wrap; /* Allow wrapping on small screens */
+            gap: 10px;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+        #search-food {
+            flex-grow: 1; /* Take available space */
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 1rem;
+            min-width: 150px; /* Ensure it doesn't get too small */
+        }
+        #search-food:focus { outline: none; border-color: #80bdff; box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); }
+        .filter-veg {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9em;
+            cursor: pointer; /* Make label clickable */
+        }
+        #veg-only-switch {
+            cursor: pointer;
+        }
+
+
+        /* Food List */
+        #food-list { list-style: none; padding: 0; margin: 0 0 15px 0; min-height: 100px; max-height: 250px; overflow-y: auto; border: 1px solid #e9ecef; border-radius: 4px; }
+        #food-list li { padding: 10px 15px; border-bottom: 1px solid #e9ecef; display: flex; justify-content: space-between; align-items: center; gap: 10px; background-color: #fff; cursor: grab; transition: background-color 0.2s ease, opacity 0.2s ease; }
+        #food-list li.dragging { opacity: 0.5; cursor: grabbing; }
+        #food-list li:last-child { border-bottom: none; }
+        #food-list li:hover { background-color: #e9ecef; }
+        /* Color coding for food items */
+        .food-item--veg { color: #198754; font-weight: 500; } /* Darker Green */
+        .food-item--non-veg { color: #dc3545; font-weight: 500; } /* Red */
+        .food-item--veg::before, .food-item--non-veg::before { content: '●'; margin-right: 8px; font-size: 0.8em; }
+
+        /* Meal Section & List */
+        .meal-section { transition: background-color 0.2s ease, border-color 0.2s ease; }
+        #meal-list { list-style: none; padding: 0; margin: 0; min-height: 50px; overflow-y: auto; border: none; }
+        #meal-list li:not(#empty-meal-message) { padding: 12px 15px; border-bottom: 1px solid #e9ecef; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; background-color: #fff; }
+        #meal-list li:last-child:not(#empty-meal-message) { border-bottom: none; }
+        .meal-section.drag-over { background-color: #e0f7fa; border-style: dashed; border-color: #007bff; }
+
+        /* Meal Item Controls */
+        #meal-list li .meal-item-info { flex-grow: 1; margin-right: 10px; font-size: 0.95em; }
+        #meal-list li .meal-item-controls { display: flex; align-items: center; gap: 5px; }
+        #meal-list li input[type="number"] { width: 60px; padding: 6px 8px; text-align: center; border: 1px solid #ced4da; border-radius: 4px; font-size: 0.9em; -moz-appearance: textfield; }
+        #meal-list li input[type="number"]::-webkit-outer-spin-button,
+        #meal-list li input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+        /* Buttons */
+        button { padding: 8px 12px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9em; transition: background-color 0.2s ease; line-height: 1; }
+        button:hover { background-color: #0056b3; }
+        .add-btn { background-color: #28a745; }
+        .add-btn:hover { background-color: #218838; }
+        .remove-btn { background-color: #dc3545; }
+        .remove-btn:hover { background-color: #c82333; }
+
+        /* Details Panel */
+        .food-details-panel { margin-top: 15px; padding: 15px; background-color: #eef7ff; border-radius: 5px; border: 1px solid #bde0fe; min-height: 100px; font-size: 0.9em; }
+        .food-details-panel h3 { margin-top: 0; margin-bottom: 0.8em; color: #005f73; font-size: 1.1em; }
+        .food-details-panel p, .food-details-panel ul { margin: 8px 0; }
+        .food-details-panel ul { padding-left: 20px; margin-bottom: 10px; }
+        .food-details-panel li { margin-bottom: 4px; }
+        .food-details-panel strong { color: #003f5c; }
+
+        /* Combined Totals & Goals Section */
+        .totals-goals-section .nutrient-row { margin-bottom: 12px; }
+        .totals-goals-section .nutrient-label { font-weight: 600; margin-bottom: 2px; display: block; }
+        .totals-goals-section .nutrient-values { font-size: 0.95em; color: #495057; }
+        .totals-goals-section .goal-value { color: #6c757d; }
+
+        /* Progress Bars */
+        .progress-bar-container { width: 100%; background-color: #e9ecef; border-radius: 4px; margin-top: 4px; height: 18px; overflow: hidden; border: 1px solid #ced4da; }
+        .progress-bar { height: 100%; width: 0%; background-color: #28a745; border-radius: 3px; transition: width 0.4s ease-in-out, background-color 0.4s ease; text-align: center; line-height: 18px; color: white; font-size: 0.75em; font-weight: bold; white-space: nowrap; overflow: hidden; }
+        .progress-bar.over { background-color: #ffc107; color: #333; }
+        .progress-bar.dangerously-over { background-color: #dc3545; color: white; }
+
+        /* Empty Message */
+        #empty-meal-message { color: #6c757d; font-style: italic; text-align: center; padding: 20px !important; border: none !important; justify-content: center; cursor: default; min-height: 50px; display: flex; align-items: center;}
+
+        /* Responsive */
+        @media (max-width: 768px) { body { padding: 15px; } h1 { font-size: 1.8rem; } .container { gap: 15px; } .card { padding: 15px; } #food-list { max-height: 200px; } }
+        @media (max-width: 480px) { h1 { font-size: 1.5rem; } .food-controls { flex-direction: column; align-items: stretch; } #meal-list li:not(#empty-meal-message) .meal-item-info { flex-basis: 100%; margin-right: 0; margin-bottom: 5px; text-align: center; } #meal-list li:not(#empty-meal-message) .meal-item-controls { width: 100%; justify-content: center; } }
+    </style>
+
+</head>
+<body>
+    <header>
+        <h1>MacroMaster Lite - Diet Builder</h1>
+    </header>
+
+    <main class="container">
+        <section class="food-section card">
+            <h2>Food Database</h2>
+            <div class="food-controls">
+                <input type="text" id="search-food" placeholder="Search food..." aria-label="Search food database">
+                <label class="filter-veg">
+                    <input type="checkbox" id="veg-only-switch"> Show Veg Only
+                </label>
+            </div>
+            <ul id="food-list" aria-live="polite">
+                <li>Loading food...</li>
+            </ul>
+            <div id="food-details" class="food-details-panel" aria-live="polite">
+                 Select a food item from the list above to see its details and add it to your meal, or drag it to the meal section below.
+            </div>
+        </section>
+
+        <section id="meal-section-card" class="meal-section card">
+            <h2>Today's Meal</h2>
+            <ul id="meal-list" aria-live="polite">
+                </ul>
+        </section>
+
+        <section class="totals-goals-section card">
+            <h2>Totals & Goals</h2>
+            <div class="nutrient-row">
+                <span class="nutrient-label">Calories:</span>
+                <span class="nutrient-values"><span id="total-calories">0</span> / <span class="goal-value" id="goal-calories">2000</span> kcal</span>
+                <div class="progress-bar-container" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="2000" aria-labelledby="total-calories"><div id="progress-calories" class="progress-bar"></div></div>
+            </div>
+            <div class="nutrient-row">
+                <span class="nutrient-label">Protein:</span>
+                 <span class="nutrient-values"><span id="total-protein">0</span> / <span class="goal-value" id="goal-protein">150</span> g</span>
+                <div class="progress-bar-container" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="150" aria-labelledby="total-protein"><div id="progress-protein" class="progress-bar"></div></div>
+            </div>
+            <div class="nutrient-row">
+                 <span class="nutrient-label">Carbs:</span>
+                 <span class="nutrient-values"><span id="total-carbs">0</span> / <span class="goal-value" id="goal-carbs">200</span> g</span>
+                <div class="progress-bar-container" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="200" aria-labelledby="total-carbs"><div id="progress-carbs" class="progress-bar"></div></div>
+            </div>
+            <div class="nutrient-row">
+                 <span class="nutrient-label">Fat:</span>
+                 <span class="nutrient-values"><span id="total-fat">0</span> / <span class="goal-value" id="goal-fat">67</span> g</span>
+                <div class="progress-bar-container" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="67" aria-labelledby="total-fat"><div id="progress-fat" class="progress-bar"></div></div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DATA ---
+            // Expanded database with approximate Indian food values
+            const foodDatabase = [
+                // Non-Veg (Red/Orange)
+                { id: 1, name: "Chicken Breast", type: 'non-veg', servingSize: "100g", weightGrams: 100, calories: 165, protein: 31, carbs: 0, fat: 3.6, ratingMacro: "Excellent Protein Source", ratingDensityLabel: "Medium", keyMicros: ["Niacin (B3)", "Selenium"] },
+                { id: 11, name: "Egg (Large)", type: 'non-veg', servingSize: "1 large", weightGrams: 50, calories: 72, protein: 6, carbs: 0.4, fat: 5, ratingMacro: "Good Protein / Healthy Fats", ratingDensityLabel: "Medium", keyMicros: ["Vit D", "Vit B12", "Choline"] },
+                { id: 12, name: "Lean Beef (Sirloin)", type: 'non-veg', servingSize: "100g", weightGrams: 100, calories: 200, protein: 30, carbs: 0, fat: 8, ratingMacro: "Excellent Protein Source", ratingDensityLabel: "Medium", keyMicros: ["Iron", "Zinc", "Vit B12"] },
+                { id: 15, name: "Butter Chicken", type: 'non-veg', servingSize: "1 cup", weightGrams: 240, calories: 450, protein: 25, carbs: 15, fat: 30, ratingMacro: "High Fat / Good Protein", ratingDensityLabel: "Medium", keyMicros: ["Vit A", "Calcium"] },
+                { id: 16, name: "Fish Curry (Pomfret)", type: 'non-veg', servingSize: "1 cup", weightGrams: 220, calories: 300, protein: 22, carbs: 8, fat: 20, ratingMacro: "Good Protein / High Fat", ratingDensityLabel: "Medium", keyMicros: ["Omega-3", "Selenium"] },
+                { id: 17, name: "Mutton Rogan Josh", type: 'non-veg', servingSize: "1 cup", weightGrams: 230, calories: 400, protein: 28, carbs: 10, fat: 28, ratingMacro: "High Fat / Excellent Protein", ratingDensityLabel: "Medium", keyMicros: ["Iron", "Zinc"] },
+                { id: 18, name: "Chicken Tikka Masala", type: 'non-veg', servingSize: "1 cup", weightGrams: 240, calories: 380, protein: 24, carbs: 18, fat: 25, ratingMacro: "High Fat / Good Protein", ratingDensityLabel: "Medium", keyMicros: ["Vit A", "Calcium"] },
+                { id: 19, name: "Prawn Masala", type: 'non-veg', servingSize: "1 cup", weightGrams: 200, calories: 250, protein: 20, carbs: 12, fat: 14, ratingMacro: "Good Protein / Medium Fat", ratingDensityLabel: "Low", keyMicros: ["Selenium", "Vit B12"] },
+                // Veg (Green)
+                { id: 2, name: "Brown Rice", type: 'veg', servingSize: "1 cup cooked", weightGrams: 195, calories: 215, protein: 5, carbs: 45, fat: 1.8, ratingMacro: "Carbohydrate Rich (Complex)", ratingDensityLabel: "Low", keyMicros: ["Manganese", "Selenium"] },
+                { id: 3, name: "Broccoli", type: 'veg', servingSize: "1 cup chopped", weightGrams: 91, calories: 31, protein: 2.5, carbs: 6, fat: 0.3, ratingMacro: "High Fiber / Low Calorie", ratingDensityLabel: "Low", keyMicros: ["Vit C (Excellent)", "Vit K (Excellent)"] },
+                { id: 5, name: "Olive Oil", type: 'veg', servingSize: "1 tbsp", weightGrams: 14, calories: 120, protein: 0, carbs: 0, fat: 14, ratingMacro: "Source of Healthy Fats", ratingDensityLabel: "High", keyMicros: ["Vitamin E", "Vitamin K"] },
+                { id: 6, name: "Apple", type: 'veg', servingSize: "1 medium", weightGrams: 182, calories: 95, protein: 0.5, carbs: 25, fat: 0.3, ratingMacro: "Carbohydrate Rich / Source of Fiber", ratingDensityLabel: "Low", keyMicros: ["Vitamin C", "Potassium"] },
+                { id: 8, name: "Almonds", type: 'veg', servingSize: "1 oz (~23 nuts)", weightGrams: 28, calories: 164, protein: 6, carbs: 6, fat: 14, ratingMacro: "Source of Healthy Fats / Good Protein", ratingDensityLabel: "High", keyMicros: ["Vit E (Excellent)", "Magnesium"] },
+                { id: 13, name: "Tofu (Firm)", type: 'veg', servingSize: "100g", weightGrams: 100, calories: 145, protein: 16, carbs: 3, fat: 9, ratingMacro: "Excellent Protein Source", ratingDensityLabel: "Medium", keyMicros: ["Calcium", "Manganese", "Iron"] },
+                { id: 14, name: "Lentils (Cooked Dal)", type: 'veg', servingSize: "1 cup cooked", weightGrams: 198, calories: 230, protein: 18, carbs: 40, fat: 0.8, ratingMacro: "Excellent Protein Source / High Fiber", ratingDensityLabel: "Low", keyMicros: ["Folate (Excellent)", "Iron", "Manganese"] },
+                { id: 20, name: "Roti / Chapati", type: 'veg', servingSize: "1 medium", weightGrams: 40, calories: 120, protein: 3, carbs: 25, fat: 1, ratingMacro: "Carbohydrate Rich", ratingDensityLabel: "High", keyMicros: ["Fiber", "Manganese"] },
+                { id: 21, name: "Paneer Tikka", type: 'veg', servingSize: "100g", weightGrams: 100, calories: 300, protein: 18, carbs: 8, fat: 22, ratingMacro: "High Fat / Good Protein", ratingDensityLabel: "High", keyMicros: ["Calcium", "Phosphorus"] },
+                { id: 22, name: "Palak Paneer", type: 'veg', servingSize: "1 cup", weightGrams: 230, calories: 350, protein: 16, carbs: 15, fat: 26, ratingMacro: "High Fat / Good Protein", ratingDensityLabel: "Medium", keyMicros: ["Vit A", "Calcium", "Iron"] },
+                { id: 23, name: "Aloo Gobi", type: 'veg', servingSize: "1 cup", weightGrams: 200, calories: 180, protein: 4, carbs: 25, fat: 7, ratingMacro: "Carbohydrate Rich", ratingDensityLabel: "Low", keyMicros: ["Vit C", "Potassium"] },
+                { id: 24, name: "Chole (Chickpea Curry)", type: 'veg', servingSize: "1 cup", weightGrams: 250, calories: 300, protein: 12, carbs: 45, fat: 8, ratingMacro: "Good Protein / Carb Rich / High Fiber", ratingDensityLabel: "Low", keyMicros: ["Iron", "Folate", "Manganese"] },
+                { id: 25, name: "Vegetable Pulao", type: 'veg', servingSize: "1 cup cooked", weightGrams: 200, calories: 280, protein: 6, carbs: 50, fat: 6, ratingMacro: "Carbohydrate Rich", ratingDensityLabel: "Medium", keyMicros: ["Fiber", "Vit A"] },
+                { id: 26, name: "Samosa (Vegetable)", type: 'veg', servingSize: "1 piece", weightGrams: 60, calories: 150, protein: 3, carbs: 20, fat: 7, ratingMacro: "Carb Rich / Medium Fat", ratingDensityLabel: "High", keyMicros: ["N/A"] },
+                { id: 27, name: "Idli", type: 'veg', servingSize: "2 pieces", weightGrams: 100, calories: 160, protein: 4, carbs: 35, fat: 0.5, ratingMacro: "Carbohydrate Rich", ratingDensityLabel: "Medium", keyMicros: ["Selenium"] },
+                { id: 28, name: "Dosa (Plain)", type: 'veg', servingSize: "1 medium", weightGrams: 80, calories: 150, protein: 3, carbs: 30, fat: 2, ratingMacro: "Carbohydrate Rich", ratingDensityLabel: "Medium", keyMicros: ["N/A"] },
+                { id: 29, name: "Upma", type: 'veg', servingSize: "1 cup", weightGrams: 180, calories: 250, protein: 6, carbs: 40, fat: 8, ratingMacro: "Carbohydrate Rich", ratingDensityLabel: "Medium", keyMicros: ["Selenium", "Fiber"] },
+                { id: 30, name: "Yogurt / Curd (Plain)", type: 'veg', servingSize: "1 cup", weightGrams: 245, calories: 150, protein: 12, carbs: 16, fat: 4, ratingMacro: "Good Protein / Carb Rich", ratingDensityLabel: "Low", keyMicros: ["Calcium (Excellent)", "Vit B12"] }
+            ];
+            foodDatabase.sort((a, b) => a.name.localeCompare(b.name)); // Sort initially
+
+            const dailyGoals = { calories: 2000, protein: 150, carbs: 200, fat: 67 };
+
+            // --- STATE ---
+            let currentMeal = [];
+            let nextUniqueItemId = 0;
+
+            // --- DOM Elements Cache ---
+            const foodListEl = document.getElementById('food-list');
+            const mealListEl = document.getElementById('meal-list');
+            const mealSectionCardEl = document.getElementById('meal-section-card');
+            const searchInput = document.getElementById('search-food');
+            const vegOnlySwitch = document.getElementById('veg-only-switch'); // Get the switch
+            const foodDetailsEl = document.getElementById('food-details');
+            const totalCaloriesEl = document.getElementById('total-calories');
+            const totalProteinEl = document.getElementById('total-protein');
+            const totalCarbsEl = document.getElementById('total-carbs');
+            const totalFatEl = document.getElementById('total-fat');
+            const goalCaloriesEl = document.getElementById('goal-calories');
+            const goalProteinEl = document.getElementById('goal-protein');
+            const goalCarbsEl = document.getElementById('goal-carbs');
+            const goalFatEl = document.getElementById('goal-fat');
+            const progressCalories = document.getElementById('progress-calories');
+            const progressProtein = document.getElementById('progress-protein');
+            const progressCarbs = document.getElementById('progress-carbs');
+            const progressFat = document.getElementById('progress-fat');
+
+            // --- Core Functions ---
+            function findFoodById(id) { return foodDatabase.find(food => food.id === id); }
+            function calculateDensityValue(food) { return (food?.weightGrams > 0) ? Math.round((food.calories / food.weightGrams) * 100) : 0; }
+
+            function addFoodToMeal(foodId, quantity = 1) {
+                if (quantity <= 0) return;
+                const food = findFoodById(foodId);
+                if (!food) return;
+                const uniqueId = nextUniqueItemId++;
+                currentMeal.push({ foodId: foodId, quantity: quantity, uniqueId: uniqueId });
+                updateAppUI();
+            }
+
+            function removeFoodFromMeal(uniqueItemId) {
+                currentMeal = currentMeal.filter(item => item.uniqueId !== uniqueItemId);
+                updateAppUI();
+            }
+
+            function updateMealItemQuantity(uniqueItemId, newQuantity) {
+                const quantity = Math.max(0, newQuantity);
+                const itemIndex = currentMeal.findIndex(item => item.uniqueId === uniqueItemId);
+                if (itemIndex > -1) {
+                    if (quantity === 0) {
+                        removeFoodFromMeal(uniqueItemId);
+                    } else {
+                        currentMeal[itemIndex].quantity = quantity;
+                        const totals = calculateTotals();
+                        displayTotals(totals);
+                    }
+                }
+            }
+
+            function calculateTotals() {
+                let totals = { calories: 0, protein: 0, carbs: 0, fat: 0 };
+                currentMeal.forEach(item => {
+                    const food = findFoodById(item.foodId);
+                    if (food) {
+                        totals.calories += food.calories * item.quantity;
+                        totals.protein += food.protein * item.quantity;
+                        totals.carbs += food.carbs * item.quantity;
+                        totals.fat += food.fat * item.quantity;
+                    }
+                });
+                totals.calories = Math.round(totals.calories);
+                totals.protein = Math.round(totals.protein * 10) / 10;
+                totals.carbs = Math.round(totals.carbs * 10) / 10;
+                totals.fat = Math.round(totals.fat * 10) / 10;
+                return totals;
+            }
+
+            // --- UI Update Functions ---
+
+            /** Renders the list of available foods based on search filter AND veg switch. */
+            function displayFoodDatabase() {
+                const searchTerm = searchInput.value.toLowerCase().trim();
+                const showOnlyVeg = vegOnlySwitch.checked;
+
+                const filteredFoods = foodDatabase.filter(food => {
+                    const nameMatch = food.name.toLowerCase().includes(searchTerm);
+                    const typeMatch = !showOnlyVeg || food.type === 'veg'; // Only check type if switch is on
+                    return nameMatch && typeMatch;
+                });
+
+                foodListEl.innerHTML = ''; // Clear previous items
+                if (filteredFoods.length === 0) {
+                    foodListEl.innerHTML = '<li>No food found matching criteria.</li>';
+                    return;
+                }
+                filteredFoods.forEach(food => {
+                    const li = document.createElement('li');
+                    if (food.type === 'veg') li.classList.add('food-item--veg');
+                    else if (food.type === 'non-veg') li.classList.add('food-item--non-veg');
+                    li.textContent = `${food.name} (${food.servingSize})`;
+                    li.dataset.foodId = food.id;
+                    li.setAttribute('role', 'button');
+                    li.setAttribute('tabindex', '0');
+                    li.setAttribute('draggable', 'true');
+                    foodListEl.appendChild(li);
+                });
+            }
+
+
+            function displayFoodDetails(foodId) {
+                const food = findFoodById(foodId);
+                if (!food) {
+                    foodDetailsEl.innerHTML = 'Select a food item from the list above.';
+                    return;
+                }
+                const densityValue = calculateDensityValue(food);
+                const densityDesc = food.weightGrams ? `(${densityValue} kcal/100g)` : '(Weight unknown)';
+                foodDetailsEl.innerHTML = `
+                    <h3>${food.name} <span class="${food.type === 'veg' ? 'food-item--veg' : 'food-item--non-veg'}">(${food.type})</span></h3>
+                    <p><strong>Serving:</strong> ${food.servingSize} ${food.weightGrams ? `(~${food.weightGrams}g)` : ''}</p>
+                    <p><strong>Nutrition (per serving):</strong></p>
+                    <ul>
+                        <li>Calories: ${food.calories} kcal</li>
+                        <li>Protein: ${food.protein} g</li>
+                        <li>Carbs: ${food.carbs} g</li>
+                        <li>Fat: ${food.fat} g</li>
+                    </ul>
+                    <p><strong>Rating:</strong></p>
+                     <ul>
+                        <li>Macro Profile: ${food.ratingMacro}</li>
+                        <li>Calorie Density: ${food.ratingDensityLabel} ${densityDesc}</li>
+                        <li>Key Micronutrients: ${food.keyMicros.join(', ') || 'N/A'}</li>
+                    </ul>
+                    <button class="add-btn" data-food-id="${food.id}">Add 1 Serving to Meal</button>
+                `;
+            }
+
+            function displayCurrentMeal() {
+                mealListEl.innerHTML = '';
+                if (currentMeal.length === 0) {
+                    mealListEl.innerHTML = '<li id="empty-meal-message">Your meal is empty. Add items or drag them here.</li>';
+                } else {
+                    currentMeal.forEach(item => {
+                        const food = findFoodById(item.foodId);
+                        if (!food) return;
+                        const li = document.createElement('li');
+                        li.dataset.uniqueId = item.uniqueId;
+                        const itemCalories = Math.round(food.calories * item.quantity);
+                        const itemProtein = Math.round(food.protein * item.quantity * 10) / 10;
+                        const itemCarbs = Math.round(food.carbs * item.quantity * 10) / 10;
+                        const itemFat = Math.round(food.fat * item.quantity * 10) / 10;
+                        li.innerHTML = `
+                            <span class="meal-item-info">
+                                ${food.name} - ${itemCalories}kcal, ${itemProtein}g P, ${itemCarbs}g C, ${itemFat}g F
+                            </span>
+                            <div class="meal-item-controls">
+                                Qty: <input type="number" value="${item.quantity}" min="0" step="0.1" class="meal-item-quantity" data-unique-id="${item.uniqueId}" aria-label="Quantity for ${food.name}">
+                                <button class="remove-btn" data-unique-id="${item.uniqueId}" aria-label="Remove ${food.name}">Remove</button>
+                            </div>
+                        `;
+                        mealListEl.appendChild(li);
+                    });
+                }
+            }
+
+            function displayTotals(totals) {
+                totalCaloriesEl.textContent = totals.calories;
+                totalProteinEl.textContent = totals.protein;
+                totalCarbsEl.textContent = totals.carbs;
+                totalFatEl.textContent = totals.fat;
+                updateProgressBar(progressCalories, totals.calories, dailyGoals.calories);
+                updateProgressBar(progressProtein, totals.protein, dailyGoals.protein);
+                updateProgressBar(progressCarbs, totals.carbs, dailyGoals.carbs);
+                updateProgressBar(progressFat, totals.fat, dailyGoals.fat);
+            }
+
+            function updateProgressBar(barEl, current, goal) {
+                const percentage = goal > 0 ? (current / goal) * 100 : 0;
+                const visualPercentage = Math.min(percentage, 100);
+                const displayPercentage = Math.round(percentage);
+                barEl.style.width = `${visualPercentage}%`;
+                barEl.textContent = `${displayPercentage}%`;
+                const container = barEl.parentElement;
+                if (container) {
+                    container.setAttribute('aria-valuenow', current);
+                    container.setAttribute('aria-valuetext', `${current} out of ${goal}`);
+                }
+                barEl.classList.remove('over', 'dangerously-over');
+                if (percentage > 110) barEl.classList.add('dangerously-over');
+                else if (percentage > 100) barEl.classList.add('over');
+            }
+
+            function updateAppUI() {
+                const totals = calculateTotals();
+                displayCurrentMeal();
+                displayTotals(totals);
+                // We also need to potentially update the food list if filters change state,
+                // but displayFoodDatabase is called directly by the filter/search handlers.
+            }
+
+            // --- Event Handlers ---
+            /** Handles search input changes AND veg switch changes */
+            function handleFilterChange() {
+                 displayFoodDatabase(); // Re-render the food list based on current filters
+                 // Clear details panel when filters change
+                 foodDetailsEl.innerHTML = 'Select a food item from the list above.';
+            }
+
+
+            function handleFoodListClick(event) {
+                const targetLi = event.target.closest('li[data-food-id]');
+                if (targetLi) {
+                    const foodId = parseInt(targetLi.dataset.foodId, 10);
+                    if (!isNaN(foodId)) displayFoodDetails(foodId);
+                }
+            }
+
+            function handleFoodListKeydown(event) {
+                 if (event.key === 'Enter' || event.key === ' ') {
+                     const targetLi = event.target.closest('li[data-food-id]');
+                     if (targetLi) {
+                         event.preventDefault();
+                         const foodId = parseInt(targetLi.dataset.foodId, 10);
+                         if (!isNaN(foodId)) displayFoodDetails(foodId);
+                     }
+                 }
+             }
+
+            function handleDetailsPanelClick(event) {
+                if (event.target.classList.contains('add-btn')) {
+                    const foodId = parseInt(event.target.dataset.foodId, 10);
+                    if (!isNaN(foodId)) {
+                        addFoodToMeal(foodId, 1);
+                        const food = findFoodById(foodId);
+                         if (food) {
+                            foodDetailsEl.innerHTML = `<p><strong>${food.name}</strong> added to your meal!</p>`;
+                             setTimeout(() => { if (foodDetailsEl.innerHTML.includes(food.name)) foodDetailsEl.innerHTML = 'Select another food item or adjust quantities.'; }, 2000);
+                         }
+                    }
+                }
+            }
+
+            function handleMealListClick(event) {
+                if (event.target.classList.contains('remove-btn')) {
+                    const uniqueId = parseInt(event.target.dataset.uniqueId, 10);
+                    if (!isNaN(uniqueId)) removeFoodFromMeal(uniqueId);
+                }
+            }
+
+            function handleMealListQuantityChange(event) {
+                 if (event.target.classList.contains('meal-item-quantity')) {
+                    const uniqueId = parseInt(event.target.dataset.uniqueId, 10);
+                    const newQuantity = parseFloat(event.target.value);
+                     if (!isNaN(uniqueId) && !isNaN(newQuantity)) updateMealItemQuantity(uniqueId, newQuantity);
+                }
+            }
+
+            // --- Drag & Drop Handlers ---
+            let draggedElement = null;
+            function handleDragStart(event) {
+                const targetLi = event.target.closest('li[data-food-id]');
+                if (targetLi) {
+                    draggedElement = targetLi;
+                    event.dataTransfer.setData('text/plain', targetLi.dataset.foodId);
+                    event.dataTransfer.effectAllowed = 'copy';
+                    setTimeout(() => { targetLi.classList.add('dragging'); }, 0);
+                } else { event.preventDefault(); }
+            }
+            function handleDragEnd(event) { if (draggedElement) { draggedElement.classList.remove('dragging'); draggedElement = null; } }
+            function handleDragOver(event) {
+                event.preventDefault();
+                if (event.dataTransfer.types.includes('text/plain')) {
+                    event.dataTransfer.dropEffect = 'copy';
+                    mealSectionCardEl.classList.add('drag-over');
+                } else { event.dataTransfer.dropEffect = 'none'; }
+            }
+            function handleDragLeave(event) { if (!mealSectionCardEl.contains(event.relatedTarget)) mealSectionCardEl.classList.remove('drag-over'); }
+            function handleDrop(event) {
+                event.preventDefault();
+                mealSectionCardEl.classList.remove('drag-over');
+                const foodIdText = event.dataTransfer.getData('text/plain');
+                const foodId = parseInt(foodIdText, 10);
+                if (!isNaN(foodId) && findFoodById(foodId)) {
+                    addFoodToMeal(foodId, 1);
+                    const food = findFoodById(foodId);
+                    if (food) {
+                       foodDetailsEl.innerHTML = `<p><strong>${food.name}</strong> dragged to your meal!</p>`;
+                        setTimeout(() => { if (foodDetailsEl.innerHTML.includes(food.name)) foodDetailsEl.innerHTML = 'Select another food item or adjust quantities.'; }, 2000);
+                    }
+                } else { console.warn("Dropped data is not a valid food ID:", foodIdText); }
+                if (draggedElement) { draggedElement.classList.remove('dragging'); draggedElement = null; }
+            }
+
+            // --- Initial Setup & Event Listeners ---
+            goalCaloriesEl.textContent = dailyGoals.calories;
+            goalProteinEl.textContent = dailyGoals.protein;
+            goalCarbsEl.textContent = dailyGoals.carbs;
+            goalFatEl.textContent = dailyGoals.fat;
+            displayFoodDatabase(); // Initial food list render based on default filters
+            updateAppUI(); // Initial UI state
+
+            searchInput.addEventListener('input', handleFilterChange); // Use combined handler
+            vegOnlySwitch.addEventListener('change', handleFilterChange); // Use combined handler
+            foodListEl.addEventListener('click', handleFoodListClick);
+            foodListEl.addEventListener('keydown', handleFoodListKeydown);
+            foodDetailsEl.addEventListener('click', handleDetailsPanelClick);
+            mealListEl.addEventListener('click', handleMealListClick);
+            mealListEl.addEventListener('input', handleMealListQuantityChange);
+            mealListEl.addEventListener('change', handleMealListQuantityChange);
+            foodListEl.addEventListener('dragstart', handleDragStart);
+            foodListEl.addEventListener('dragend', handleDragEnd);
+            mealSectionCardEl.addEventListener('dragover', handleDragOver);
+            mealSectionCardEl.addEventListener('dragleave', handleDragLeave);
+            mealSectionCardEl.addEventListener('drop', handleDrop);
+
+        }); // End DOMContentLoaded
+    </script>
+
+</body>
+</html>
